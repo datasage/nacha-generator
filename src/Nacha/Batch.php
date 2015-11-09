@@ -27,7 +27,10 @@ class Batch {
 	/** @var CcdEntry[] */
 	private $debitEntries = [];
 
-	public function __construct() {
+	private $lineBreak;
+
+	public function __construct($lineBreak = File::BREAK_LF) {
+		$this->lineBreak = $lineBreak;
 		$this->header = new BatchHeader();
 	}
 
@@ -73,6 +76,14 @@ class Batch {
 		return intval($hashStr);
 	}
 
+	public function setLineBreak($value) {
+		$this->lineBreak = $value;
+	}
+
+	public function getLineBreak() {
+		return $this->lineBreak;
+	}
+
 	public function __toString() {
 		$entries = '';
 
@@ -84,11 +95,11 @@ class Batch {
 			->setBatchNumber((string)$this->getHeader()->getBatchNumber());
 
 		foreach ($this->debitEntries as $entry) {
-			$entries .= (string)$entry."\n";
+			$entries .= (string)$entry.$this->lineBreak;
 		}
 
 		foreach ($this->creditEntries as $entry) {
-			$entries .= (string)$entry."\n";
+			$entries .= (string)$entry.$this->lineBreak;
 		}
 
 		// calculate service code
@@ -107,7 +118,7 @@ class Batch {
 		$footer->setTotalCreditAmount($this->getTotalCreditAmount());
 		$footer->setServiceClassCode((string)$this->header->getServiceClassCode());
 
-		return (string)$this->header."\n".$entries.$footer;
+		return (string)$this->header.$this->lineBreak.$entries.$footer;
 	}
 
 }

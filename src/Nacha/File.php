@@ -8,21 +8,32 @@ use Nacha\Record\FileFooter;
 
 class File {
 
+	const BREAK_CRLF = "\r\n";
+	const BREAK_CR = "\r";
+	const BREAK_LF = "\n";
+
 	private $header;
 	/** @var Batch[] */
 	private $batches = [];
 
-	public function __construct() {
+	private $lineBreak;
+
+	public function __construct($lineBreak = self::BREAK_LF) {
+		$this->lineBreak = $lineBreak;
 		$this->header = new FileHeader();
 	}
 
 	public function getHeader() {
 		return $this->header;
 	}
+
 	public function getBatches() {
 		return $this->batches;
 	}
+
 	public function addBatch(Batch $batch) {
+		$batch->setLineBreak($this->getLineBreak());
+
 		$this->batches[] = $batch;
 		$batch->getHeader()->setBatchNumber(count($this->batches));
 	}
@@ -33,6 +44,14 @@ class File {
 			$hash += $batch->getEntryHash();
 		}
 		return substr((string)$hash, -10); // only take 10 digits from end of string to 10
+	}
+
+	public function setLineBreak($value) {
+		$this->lineBreak = $value;
+	}
+
+	public function getLineBreak() {
+		return $this->lineBreak;
 	}
 
 	public function __toString() {
@@ -51,7 +70,7 @@ class File {
 			$totalDebits     += $batch->getTotalDebitAmount(); // is this total amount of debits, or entries?
 			$totalCredits    += $batch->getTotalCreditAmount(); // is this total amount of credits, or entries?
 
-			$batches .= $batch."\n";
+			$batches .= $batch.$this->lineBreak;
 		}
 
 		// block padding
@@ -61,7 +80,7 @@ class File {
 
 		$block = '';
 		for ($x=0; $x<$blocksNeeded % 10; $x++) {
-			$block .= (new Block)."\n";
+			$block .= (new Block).$this->lineBreak;
 		}
 
 		$fileFooter->setBlockCount(round($totalRecords / 10));
@@ -69,9 +88,9 @@ class File {
 		$fileFooter->setTotalDebits($totalDebits);
 		$fileFooter->setTotalCredits($totalCredits);
 
-		$output = $this->header."\n".$batches.$fileFooter."\n".$block;
+		$output = $this->header.$this->lineBreak.$batches.$fileFooter.$this->lineBreak.$block;
 
-		return rtrim($output, "\n");
+		return rtrim($output, $this->lineBreak);
 	}
 
 }
