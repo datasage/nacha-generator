@@ -13,7 +13,7 @@ class DebitEntryTest extends \PHPUnit_Framework_TestCase {
 			->setDFiAccountNumber('46479999')
 			->setAmount('550.00')
 			->setIndividualId('SomePerson1255')
-			->setIdividualName('Alex Dubrovsky')
+			->setIndividualName('Alex Dubrovsky')
 			->setDiscretionaryData('S')
 			->setAddendaRecordIndicator(0)
 			->setTraceNumber('09101298', 15);
@@ -30,7 +30,7 @@ class DebitEntryTest extends \PHPUnit_Framework_TestCase {
 			->setCheckDigit(7)
 			->setDFiAccountNumber('46479999')
 			->setAmount('550.00')
-			->setIdividualName('Alex Dubrovsky')
+			->setIndividualName('Alex Dubrovsky')
 			->setAddendaRecordIndicator(0)
 			->setTraceNumber('09101298', 15);
 
